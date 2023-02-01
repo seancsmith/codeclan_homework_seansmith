@@ -35,7 +35,9 @@ Let’s first investigate the calories of different drinks. Select the variables
 ```{r}
 drinks_content_cals <- coffe_drinks %>% 
   select(Beverage_category, Beverage, Beverage_prep, Calories) %>% 
-  na.omit()
+  filter(is.na(Calories)) %>%
+  summarise(count_of_missing_calories = n())
+
 drinks_content_cals
 
 ```
@@ -80,7 +82,8 @@ Let’s look at this a different way. What is the average number of calories in 
 ```{r}
 bev_prep_cals <- coffe_drinks %>% 
   group_by(Beverage_prep) %>%
-  summarise(mean_prep_cals = mean(Calories))
+  summarise(mean_prep_cals = mean(Calories)) %>% 
+  arrange(desc(mean_prep_cals))
 bev_prep_cals
 ```
 
@@ -88,12 +91,21 @@ Question 6.
 
 Which Beverage_prep type contains more than the average calories of all drinks?
 
+My Solution:
 ```{r}
 more_than_avg <- bev_prep_cals %>% 
   mutate(avg_cals = mean(mean_prep_cals)) %>% 
   filter(mean_prep_cals > avg_cals)
 
 more_than_avg
+```
+
+```{r}
+avg_calories <- coffe_drinks %>%
+                  summarise(mean_calories = mean(Calories)) %>%
+                  pull()
+
+avg_calories
 ```
 
 Question 7.
@@ -110,6 +122,18 @@ least_cal_drink
 ```{r}
 # can start by finding the drink with the lowest number of calories 
 coffe_drinks %>%
+  group_by(Beverage_category, Beverage, Beverage_prep) %>%
+  summarise(min_calories = min(Calories)) %>%
+  arrange(min_calories) %>%
+  head(1)
+```
+
+```{r}
+# But this is a Tea and the answer specifically asked for coffee drink! So we will filter out this tea drink to get the lowest calorie coffee drink.
+
+
+coffe_drinks %>%
+  filter(Beverage_category != "Tazo® Tea Drinks") %>%
   group_by(Beverage_category, Beverage, Beverage_prep) %>%
   summarise(min_calories = min(Calories)) %>%
   arrange(min_calories) %>%
