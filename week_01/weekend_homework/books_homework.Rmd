@@ -158,7 +158,7 @@ books_clean_update
 
 ```{r}
 
-top_old_books <- books_quality %>% 
+top_old_books <- books_clean_update %>% 
   select(title,
          book_quality,
          publication_date) %>% 
@@ -187,3 +187,6 @@ top_author
 
 # A problem I discovered is that this only works when the authors name has been input exactly/correctly. This also does not calculate the sum of books written if an author has written books on their own but also collaborated.
 ```
+
+
+
