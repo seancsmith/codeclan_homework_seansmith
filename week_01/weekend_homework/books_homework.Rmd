@@ -1,0 +1,189 @@
+---
+title: "Week 1 Homework"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(skimr)
+#library(lubridate)
+```
+
+```{r}
+books <- read_csv("data/books.csv")
+```
+
+## Explore the data
+```{r}
+view(books)
+
+dim(books)
+
+# Useful info such as number of missing values and quartiles
+skim(books)
+
+names(books)
+
+glimpse(books)
+
+# Top 10 books with higest average rating
+# Problem discovered where books have 1 or very few reviews 
+books %>% 
+slice_max(average_rating,n = 10)
+
+# Tells me the data type of each variable/column
+sapply(books, class)
+
+```
+
+## Clean up the data
+
+```{r}
+books_clean <- books %>% 
+  clean_names() %>% 
+  rename("row_id" = "rowid",
+         "isbn_13" = "isbn13"
+         )
+books_clean
+
+# If I need to change the type of variable
+# books_clean %>%
+#   mutate(average_rating = as.numeric(average_rating))
+```
+
+
+## Find any missing values
+
+```{r}
+# Finds the total sum of NA values in books
+sum(is.na(books_clean))
+
+# Counts the number of NA values - returns TRUE or FALSE
+table(is.na(books_clean))
+
+books_clean %>% 
+  filter(num_pages == "0")
+```
+- Did not discover any missing values. There are a lot of "0"s in there where there shouldn't be (e.g. you can't have 0 page numbers).
+
+- I've decided to basically not do anything with them. I don't think removing them would be appropriate due to them having missing info. 
+
+- Obviously they won't be included in some findings if they have 0 reviews or pages, but I don't think manufacturing an average_rating would be fair.
+
+### The best (and worst) books with the highest ratings where the rating count is over a certain number
+# and Remove J.K. Rowling
+```{r}
+
+# Using quantile to calculate a value to use as the ratings_count must be above a certain number. 
+quartiles <- unname(
+  quantile(books_clean$ratings_count))
+
+low_quart <- quartiles[2]
+
+best_books <- books_clean %>% 
+  filter(authors != "J.K. Rowling" 
+         & authors != "J.K. Rowling/Mary GrandPré"
+         & ratings_count > low_quart) %>% 
+  select(title, 
+         authors,
+         average_rating) %>% 
+  slice_max(average_rating, n = 5)
+best_books
+
+worst_books <- books_clean %>% 
+  filter(ratings_count > low_quart) %>% 
+  select(title, 
+         authors, 
+         average_rating) %>% 
+  slice_min(average_rating, 
+            n = 5)
+worst_books
+```
+
+## The publishers with the highest number of ratings + text reviews
+
+```{r}
+pub_most_reviews <- books %>% 
+  select(publisher,
+         ratings_count,
+         text_reviews_count) %>% 
+  group_by(publisher) %>% 
+  summarise(ratings_reviews_total =
+              sum(ratings_count) + 
+              sum(text_reviews_count)) %>%
+  arrange(desc(ratings_reviews_total))
+pub_most_reviews
+```
+
+## Add a new column giving the book a character vector called "book_quality", rating it excellent, good, okay, poor or terrible.
+
+```{r}
+# Filter using the low quart to deal with books who either have none or very few ratings - making their averages very low or high.
+
+books_clean <- books_clean %>% 
+  filter(ratings_count > low_quart) %>% 
+  mutate(book_quality = case_when(
+    average_rating <= 1 ~ "Terrible",
+    average_rating <= 2 ~ "Poor",
+    average_rating <= 3 ~ "Okay",
+    average_rating <= 4 ~ "Good",
+    average_rating <= 5 ~ "Excellent"
+  ))
+books_clean
+  
+```
+
+## Using the quartiles of the average_rating to update the column, give them a new rating of book_quality
+```{r}
+
+avg_rate_quart <- unname(
+  quantile(books_clean$average_rating))
+
+books_clean_update <- books_clean %>% 
+  filter(ratings_count > low_quart) %>% 
+  mutate(book_quality = case_when(
+    average_rating == 0 ~ "No Rating",
+    average_rating <= avg_rate_quart[1] ~ "Terrible",
+    average_rating <= avg_rate_quart[2] ~ "Poor",
+    average_rating <= avg_rate_quart[3] ~ "Okay",
+    average_rating <= avg_rate_quart[4] ~ "Good",
+    average_rating <= avg_rate_quart[5] ~ "Very Good",
+    average_rating <= 5 ~ "Amazing"
+  )) 
+books_clean_update
+```
+
+## The 10 oldest books where book_quality == "Very Good" or "Amazing"
+
+```{r}
+
+top_old_books <- books_quality %>% 
+  select(title,
+         book_quality,
+         publication_date) %>% 
+  filter(book_quality == "Very Good"
+         | book_quality == "Amazing") %>% 
+  arrange(publication_date) %>% 
+  head(10)
+top_old_books
+```
+
+
+## The top 5 authors who have released 10 or more books.
+
+```{r}
+# Group the authors. Count the number of books they have released. Calculate the mean of the average_rating of each of the authors books and round to 2 decimal places.
+
+top_author <- books_clean_update %>% 
+  group_by(authors) %>% 
+  summarise(book_count = n(),
+            overall_avg = round(mean((average_rating)), 2)
+  ) %>%
+  filter(book_count >= 10) %>% 
+  arrange(desc(overall_avg)) %>% 
+  head(5)
+top_author
+
+# A problem I discovered is that this only works when the authors name has been input exactly/correctly. This also does not calculate the sum of books written if an author has written books on their own but also collaborated.
+```

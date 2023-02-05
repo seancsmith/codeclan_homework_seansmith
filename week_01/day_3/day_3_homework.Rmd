@@ -3,21 +3,41 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+
 ```{r}
-movies <- read.csv("movies.csv")
+library(tidyverse)
+library(janitor)
+```
+
+
+
+```{r}
+movies <- read_csv("movies.csv")
 movies
 ```
 
 
 
-```{r}
-library(tidyverse)
 
-```
 
 Question 1.
 
 After you’ve read in the data and assigned it to a variable with a useful name, investigate it. Write down some ideas for what you could do to further investigate/clean this data using what you’ve learned today (no need to code it though, just jot down thoughts and ideas). Feel free to also write down any general thoughts you get looking at the data - this task is just to get you thinking about data and data cleaning/prepping.
+
+
+```{r}
+# dimensions
+dim(movies)
+
+#investigate columns
+#view(movies)
+
+# total number of missing values in dataset
+sum(is.na(movies))
+
+#How many rows are dropped if you drop the NA's
+nrow(movies) - nrow(drop_na(movies))
+```
 
 - Check for metadata and check the variable names
 - Check for missing data
@@ -125,11 +145,11 @@ Budgets 40 millions and above as ‘Big budget’
 Save this into a new variable called movie_budgets.
 
 ```{r}
-movies_budgets <- movies_imputed %>% 
+movies_budgets <- movies_imputed %>%
   mutate(budget_type = case_when(
     budget < 12000000 ~ "Small budget",
     budget < 40000000 ~ "Medium budget",
-    budget > 40000000 ~ "Big Budget")) %>% 
+    budget > 40000000 ~ "Big Budget")) %>%
   
   
   select(title, budget, budget_type)
