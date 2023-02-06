@@ -1,0 +1,123 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+card_base <- read_csv("data/CardBase.csv") %>% 
+  clean_names()
+
+customer_base <- read_csv("data/CustomerBase.csv") %>% 
+  clean_names()
+
+fraud_base <- read_csv("data/FraudBase.csv") %>% 
+  clean_names()
+
+transactions_base <- read_csv("data/TransactionBase.csv") %>% 
+  clean_names()
+```
+
+Question 2
+
+Join the data containing card details and customer details by customer id, so that all records of card details and any matching records in customer details are kept. Before you run the code, think about how many rows you expect to see after joining.
+
+
+```{r}
+customer_card_details <- card_base  %>% 
+left_join(customer_base, 
+            by = "cust_id")
+```
+
+Question 3
+
+Join the data containing fraud details with transaction details so all rows of both tables are kept. What does the resulting row number tell you?
+
+```{r}
+fraud_and_transaction <- fraud_base %>% 
+  full_join(transactions_base, by = "transaction_id")
+
+```
+
+Question 4
+
+Join the data containing card details with transaction details so rows from the first which have matching ones in the second are returned, but only return rows in the first table once.
+
+```{r}
+matching_deets <- card_base %>% 
+  semi_join(transactions_base, by = c("card_number" = "credit_card_id"))
+  #group_by(card_number)
+
+matching_deets
+```
+
+1.2 tidyr
+Question 5
+
+Read in hat_observations and separate observation into two columns, hat_colour and hat_type.
+
+```{r}
+hat_observations <- read_csv("data/hat_observations.csv")
+```
+
+```{r}
+hat_observations
+```
+
+```{r}
+tidy_hats <- hat_observations %>% 
+  separate(observation, c("hat_colour", "hat_type"), sep = "\\,")
+```
+
+Question 6
+
+Unite day, month, and year columns into a column called date using a suitable separator. Then find the date where the most berets were observed.
+
+```{r}
+most_berets <- tidy_hats %>% 
+  unite(date,
+        c("day", "month", "year"),
+        sep = "/")
+most_berets
+```
+
+Question 1
+
+Can you join all 4 datasets together so that you’re left with a dataset that looks like below with 109 rows and 12 columns?
+
+```{r}
+combo_date <- customer_card_details %>% 
+  left_join(transactions_base, by = c("card_number" = "credit_card_id")) %>% 
+  right_join(fraud_base, by = "transaction_id")
+```
+
+2.2 tidyr
+Question 2
+
+Read in exam_scores and transform it into long format with two new columns exam_question and score. Then, using separate and select, remove superfluous information from the values in exam_question
+
+
+```{r}
+exam_scores <- read_csv("data/exam_scores.csv")
+
+```
+
+```{r}
+exam_scores_tidy <- exam_scores %>% 
+  pivot_longer(cols = starts_with("exam"),
+               names_to = "exam_question",
+               values_to = "score")
+```
+
+```{r}
+exam_scores_new <- exam_scores_tidy %>% 
+  separate(exam_question, c("exam", "exam_question"), sep = "_Q") %>% 
+  select(id, exam_question, score)
+
+exam_scores_new
+```
+

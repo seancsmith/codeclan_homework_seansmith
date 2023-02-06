@@ -121,6 +121,11 @@ pub_most_reviews
 ```{r}
 # Filter using the low quart to deal with books who either have none or very few ratings - making their averages very low or high.
 
+quartiles <- unname(
+  quantile(books_clean$ratings_count))
+
+low_quart <- quartiles[2]
+
 books_clean <- books_clean %>% 
   filter(ratings_count > low_quart) %>% 
   mutate(book_quality = case_when(
@@ -158,6 +163,9 @@ books_clean_update <- books_clean %>%
     average_rating <= 5 ~ "Amazing"
   )) 
 books_clean_update
+
+books_clean_update %>% 
+  count(book_quality)
 ```
 
 ## The 10 oldest books where book_quality == "Very Good" or "Amazing"
