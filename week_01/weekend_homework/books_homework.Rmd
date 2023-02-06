@@ -132,6 +132,12 @@ books_clean <- books_clean %>%
   ))
 books_clean
   
+
+books_clean %>% 
+    filter(book_quality == "Good" | book_quality == "Excellent") %>% 
+    summarise(prop_good_or_excellent = n()/nrow(books_clean))
+
+# This shows too high a proportion of books are rated "Good" or "Excellent"
 ```
 
 ## Using the quartiles of the average_rating to update the column, give them a new rating of book_quality
@@ -187,6 +193,5 @@ top_author
 
 # A problem I discovered is that this only works when the authors name has been input exactly/correctly. This also does not calculate the sum of books written if an author has written books on their own but also collaborated.
 ```
-
 
 
