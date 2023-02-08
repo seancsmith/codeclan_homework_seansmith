@@ -121,7 +121,14 @@ pattern <- "c\\("
 codeclan_hashtags %>%  
   mutate(multiple_tags = str_detect(hashtags, pattern)) %>% 
   filter(multiple_tags == TRUE)
+codeclan_hashtags
   
+## FROM ANSWERS
+hashtags_multiple <- codeclan_hashtags %>% 
+  mutate(first_letters = str_sub(hashtags, 1, 2)) %>%
+  filter(str_detect(first_letters, "c\\("))
+
+hashtags_multiple
 ```
 
 
@@ -145,12 +152,42 @@ Use str_extract_all() with a regular expression to find out which Twitter users 
 ```{r}
 cc_messages <- cc_tweets %>% 
   mutate(who_cc_tweet = str_extract_all(text, "@[a-zA-z0-9_]+"), .after = tweet_id) %>% 
-  mutate(who_cc_tweet = str_remove(who_cc_tweet, "@")) %>%
+  mutate(who_cc_tweet = str_remove_all(who_cc_tweet, "@")) %>%
   mutate(who_cc_tweet = na_if(who_cc_tweet, "character(0)")) %>% 
   filter(is_retweet == FALSE) %>% 
-  drop_na(who_cc_tweet) 
+  drop_na(who_cc_tweet)
   
 cc_messages
+
+user_pattern <- "@[a-zA-Z0-9_]+"
+tweets <- cc_tweets %>% 
+  pull(text) %>% 
+  str_extract_all(user_pattern) %>% 
+  flatten_chr() %>% 
+  unique()
+tweets
 ```
+- Break it down
+- Work on a subset first
+- Build it up one step at a time
+
+some chars are _meta-characters_
+e.g. +*^$
+
+These are chars that have a special meaning in a regex context
+
+If you try to search for these the regex engine will try and use them in their __meta__ capacity
+
+If you want to find an actual, literal meta-chat we have to _escape_
+
+- using `\\` before the specific meta-char
+
+```{r}
+s <- "([.*hello"
+
+pattern <- "\\(\\[\\.\\*"
+```
+
+Sometimes the _secret_formula is easier to find for getting rid of the bit you don't want, rather than the bit you do want
 
 

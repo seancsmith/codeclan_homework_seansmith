@@ -1,0 +1,184 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+```
+
+Question 1.
+Find the weather forecast for the next three days online. Create a list of lists in which each inner list should be labelled with the name of the day of the week. Each inner list should contain named elements telling you the temperature, chance of rain and wind speed.
+
+```{r}
+
+weater_info <- list(
+                "Thursday" = list(temp = 7, rain_chance = 33, wind_speed = 12),
+                "Friday" = list(temp = 8, rain_chance = 67, wind_speed = 45),
+                "Saturday" = list(temp = 12, rain_chance = 99, wind_speed = 2))
+weater_info
+```
+
+
+Question 2.
+Using the list you’ve just made find:
+
+The chance of rain tomorrow
+
+```{r}
+weater_info$Thursday$rain_chance
+```
+
+The wind speed on the day after tomorrow
+```{r}
+weater_info[["Friday"]][["wind_speed"]]
+```
+
+The temperature tomorrow.
+```{r}
+weater_info[[1]]$temp
+```
+
+
+
+Question 3.
+Find a 14 day forecast online and create a matrix of the forecasts for temperature, where each week is one row and columns correspond to days.
+
+You will want to give a name to the matrix you create.
+
+```{r}
+fourteen_days <- matrix(sample(14), nrow = 2, ncol = 7)
+
+colnames(fourteen_days) <- c("Monday", "Tuesday", "Wednesday", "Thursday",
+                             "Friday", "Saturday", "Sunday")
+rownames(fourteen_days) <- c("Week_1", "Week_2")
+```
+
+
+Question 4.
+From the matrix you just made select:
+The third day of the second week
+
+```{r}
+fourteen_days[2, 3]
+```
+
+The whole second week
+
+```{r}
+fourteen_days[2, 1:7]
+```
+
+The first, third and fifth days in both weeks.
+```{r}
+fourteen_days[1:2, c(1, 3, 5)]
+```
+
+
+Question 5.
+Write a function that pre-appends “The answer is:” to any character input, while for numeric input, it either just returns the number for numbers less than 10, or divides the number by 10 for numbers greater than 10. For anything else return “Invalid input”.
+
+
+```{r}
+the_answer <- function(answer){
+  
+  if (is.character(answer)){
+    phrase <- paste("The answer is:", answer)
+    print(phrase)
+    
+  } else if (is.numeric(answer)){
+    if (answer < 10){
+      print(answer)
+    }
+    else {
+      answer <- answer / 10
+      print(answer)
+    }
+  }
+  else{
+    print("Invalid Input")
+  } }
+```
+
+```{r}
+
+the_answer(TRUE)
+```
+
+
+Question 6.
+Write a function which checks if two vectors have the same elements.
+
+If they have the same elements in the same order, return “Exactly the same”
+If they have the same elements but in a different order, return “The same”
+If they don’t have the same elements, return “Different”.
+
+```{r}
+x <- c(6, 2, 7)
+y <- c(6, 2, 7)
+
+if (all(x == y)){
+  print("Exactly the same")
+} else if (all(sort(x) == sort(y))){
+  print("The same")
+} else{
+  print("Different")
+}
+
+```
+
+
+2 Extension
+
+
+Question 7.
+Write code that prints a multiplication table for numbers up to 12. i.e. there will be 12 rows and 12 columns, and each element should be the row number multiplied by the column number.
+
+From: https://adriann.github.io/programming_problems.html
+
+```{r}
+multi_table <- matrix(, 12, 12)
+
+for (r in seq_len(nrow(multi_table))){
+  for (c in seq_len(ncol(multi_table))){
+    multi_table[r, c] <- (r * c)
+   }
+}
+multi_table
+```
+
+
+Question 8.
+Write a function that takes a vector, and creates a text art histogram, like the one below.
+
+You may want to use the function cat(). This is similar to print(), but prints directly, without vector markers. You can also include newlines "\n" when using cat().
+
+For example, the vector c(1, 2, 3, 4, 5, 1, 3, 4, 5, 1, 3, 4, 4, 3, 3, 3, 3) should produce the histogram below - the histogram dislpays the number of times each number appears in the vector.
+
+1 | ***
+2 | *
+3 | *******
+4 | ****
+5 | **
+
+```{r}
+histovec <- c(1, 2, 3, 4, 5, 1, 3, 4, 5, 1, 3, 4, 4, 3, 3, 3, 3)
+n <- min(histovec)
+
+
+while (n <= max(histovec)){
+  cat("\n")
+  histog <- paste(n, " | ")
+  cat(histog)
+  for (numb in sort(histovec)){
+    if (numb == n){
+      cat("*")
+    }
+  }
+  n <- n + 1
+}
+
+```
+
+
+?sort
+
