@@ -172,7 +172,7 @@ SELECT
     ' - ',
     department,
     ' (joined ',
-    EXTRACT (MONTH FROM start_date),
+    TO_CHAR(start_date, 'Month'),
     ' ',
     EXTRACT (YEAR FROM start_date),
     ')') 
