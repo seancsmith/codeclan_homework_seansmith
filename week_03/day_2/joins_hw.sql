@@ -53,7 +53,7 @@ SELECT
     e.*,
     pd.local_account_no,
     pd.local_sort_code,
-    t."name" 
+    t."name" AS team_name
 FROM (employees AS e LEFT JOIN pay_details AS pd
 ON e.pay_detail_id = pd.id)
 LEFT JOIN teams AS t
@@ -107,6 +107,7 @@ GROUP BY t.id
 
 SELECT
     t.id,
+    t.name,
     t.charge_cost,
     count(e.id) AS n_employees,
     (CAST(t.charge_cost AS INT) * count(e.id)) AS total_day_charge
@@ -118,7 +119,7 @@ GROUP BY t.id;
 
 SELECT
     t.id,
-    count(e.id) AS n_employees,
+    t.name,
     CAST(t.charge_cost AS INT) * count(e.id) AS total_day_charge
 FROM teams AS t INNER JOIN employees AS e 
 ON t.id = e.team_id
@@ -138,4 +139,4 @@ SELECT
     COUNT(e.id)
 FROM employees AS e FULL JOIN employees_committees AS ec
 ON e.id = ec.employee_id
-WHERE ec.committee_id IS NULL;
+WHERE ec.committee_id  IS NULL;
