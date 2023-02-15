@@ -10,10 +10,6 @@ AND salary IS NULL
 
 -- Question 2
 
-the department
-the employees full name (first and last name)
-Order your resulting table alphabetically by department, and then by last name
-
 SELECT 
     concat(first_name, ' ', last_name),
     department
