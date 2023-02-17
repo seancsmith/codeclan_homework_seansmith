@@ -14,7 +14,7 @@ SELECT
     concat(first_name, ' ', last_name),
     department
 FROM employees
-ORDER BY last_name 
+ORDER BY last_name NULLS LAST
 
 
 -- Question 3
@@ -46,7 +46,7 @@ SELECT
     count(id) 
 FROM employees
 GROUP BY department, fte_hours
-ORDER BY department , fte_hours
+ORDER BY department ASC NULLS LAST , fte_hours ASC NULLS LAST
 
 
 -- Question 6
@@ -178,7 +178,6 @@ ORDER BY count(first_name) DESC, first_name
 SELECT
     department,
     sum(CAST((grade = 1) AS INT)) AS grade_1_total,
-    sum(CAST((grade != 1) AS INT)) AS grade_not_1,
     CAST(sum(CAST((grade = 1) AS INT)) AS REAL)/ CAST(count(id) AS REAL) AS grade_prop
 FROM employees
 GROUP BY department
