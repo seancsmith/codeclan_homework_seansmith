@@ -22,10 +22,11 @@ qb_device_theme <- function() {
     panel.grid.minor.y = element_line(colour = "grey90", linetype = 2, size = 0.5),
     axis.text = element_text(size = 10),
     axis.title = element_text(size = 14),
-    title = element_text(size = 16)
+    title = element_text(size = 16),
+    text = element_text(size = 12)
   )
 }
-
+?theme
 ggplot(qb_revenue_breakdown) +
   geom_bar(aes(x = year, y = revenue, fill = product), 
            stat = "identity") +
@@ -68,16 +69,18 @@ ggplot(revenue_and_costs) +
   labs(x = "Date",
        y = "Sales",
        title = "Monthly Cost and Total Revenue") +
-  scale_y_continuous(n.breaks = 10) +
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0, 3000),
+                     breaks = seq(0, 3000, 250)) +
   scale_colour_manual(values = col_scheme <- c("#E89FE9", "#50434F", "#B6A7B5", "#F9A472", "#BD7040")) +
   qb_device_theme()
-
 ```
 4. Show annual sales of personal fitness trackers over the last 5 years broken down by company as a ribbon plot (use geom_area). This data is in qb_competitors.
 
 ```{r}
 qb_competitors <- clean_names(qb_competitors)
 
+options(scipen = 10)
 ggplot(qb_competitors) +
   geom_area(aes(x = year, y = revenue, fill = company)) +
   labs(x = "Year",
@@ -120,5 +123,15 @@ ggplot(filter_device) +
   facet_grid(device ~ id) +
   scale_colour_manual(values = col_scheme <- c("#E89FE9", "#50434F", "#B6A7B5", "#F9A472", "#BD7040")) +
   qb_device_theme()
+```
+
+```{r}
+qb_device_data %>% 
+  mutate(decimal_hour = hours + (mins / 60)) %>% 
+ggplot(aes(x = decimal_hour, y = counts)) +
+  geom_line(aes(colour = device)) +
+  facet_grid(device ~ id)
+
+?theme
 ```
 

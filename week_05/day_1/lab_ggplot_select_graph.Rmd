@@ -1,0 +1,157 @@
+---
+title: "ggplot lab"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+late_deliveries <- read_csv("data/lab data/late_deliveries.csv")
+recovery_time <- read_csv("data/lab data/recovery_times.csv")
+fitness_levels <- read_csv("data/lab data/fitness_levels.csv")
+```
+```{r}
+fitness_levels %>% 
+  ggplot() +
+  geom_bar(aes(x = age, y = fitness_score),
+           stat = "identity") +
+  facet_wrap(~ group)
+```
+
+
+```{r}
+recovery_time %>% 
+  ggplot() +
+  geom_bar(aes(x = treatment_group, y = recovery, fill = prognosis),
+           position = "dodge",
+           stat = "identity") +
+  labs(x = "Treatment Group",
+       y = "Recovery",
+       fill = "Prognosis",
+       title = "Recovery times by Prognosis") +
+  theme_light() +
+  scale_fill_manual(values = c("yellow", "brown", "red", "orange"))
+```
+
+
+```{r}
+late_deliveries %>% 
+  ggplot() +
+  aes(x = date, y = late_deliveries) +
+  geom_line() +
+  labs(x = "Date",
+       y = "Late Deliveries",
+       title = "Number of Late Deliveries 2015 - 2019") +
+  theme_linedraw()
+
+```
+
+```{r}
+blood_pressure <- read_csv("data/lab data/blood_pressure.csv")
+```
+
+```{r}
+blood_pressure %>% 
+  ggplot() +
+    aes(x = daily_saturated_fat_intake_mg,
+        y = systolic_blood_pressure_mm_hg) +
+  geom_point() +
+  geom_smooth(method = lm, 
+               se = FALSE,
+              colour = "red3") +
+  labs(x = "Daily Saturated Fat Intake (mg)",
+       y = "Systolic Blood Pressure (mm hg)",
+       title = "Daily Fat Intake vs Blood Pressure")
+
+```
+
+```{r}
+car_use <- read_csv("data/lab data/car_use.csv")
+```
+```{r}
+car_users <- car_use %>% 
+  mutate(n_car_users = population * car_use_percent)
+
+car_users %>% 
+  ggplot() +
+  aes(x = n_car_users, y = air_so2_concentration_ppm) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "Number of car users",
+       y = "Air So2 Concentration ppm")
+```
+
+```{r}
+d20_outcomes <- read_csv("data/lab data/d20_outcomes.csv")
+```
+
+```{r}
+d20_outcomes %>% 
+  ggplot() +
+  aes(x = outcome) +
+  geom_histogram(bins = 20, colour = "white") +
+  labs(x = "Outcome",
+       y = "Count",
+       title = "d20 Outcomes") +
+  theme(
+    text = element_text(size = 15,
+                        family = "Courier")
+  )
+```
+
+```{r}
+d20x5_outcomes <- read_csv("data/lab data/d20x5_outcomes.csv")
+```
+
+```{r}
+d20x5_outcomes %>% 
+  distinct(outcome) %>% 
+  arrange(desc(outcome))
+
+d20x5_outcomes %>% 
+  ggplot() +
+  aes(x = outcome) +
+  geom_histogram(bins = 15, colour = "white") +
+  labs(x = "Outcome",
+       y = "Count",
+       title = "d20x5 Outcomes") +
+  theme_minimal()
+```
+
+```{r}
+pension_surplus <- read_csv("data/lab data/pension_surplus.csv")
+```
+
+```{r}
+pension_surplus %>% 
+  ggplot() +
+  aes(x = reorder(item, balance), y = balance, fill = sign)  +
+  geom_col() +
+  coord_flip() +
+  labs(x = "Balance",
+       y = "Item",
+       fill = NULL,
+       title = "Pension Surplus")
+
+```
+
+```{r}
+pension_liabilities <- read_csv("data/lab data/pension_liabilities.csv")
+```
+
+```{r}
+pension_liabilities %>% 
+  ggplot() +
+  aes(x = year, y = liability_millions, fill = liability_type) +
+  geom_col(position = "fill") +
+  labs(x = "Year",
+       y = "Liability (millions)",
+       fill = "Liability Type",
+       title = "Liability Cost by Type") +
+  theme_classic()
+```
+
+
