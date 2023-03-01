@@ -124,7 +124,7 @@ back_pain <- backpack %>%
 back_pain %>% 
   ggplot() +
   aes(x = back_problems, fill = sex) +
-  geom_bar(position = "stack") +
+  geom_bar(position = "fill") +
   labs(x = "Back Problems")
 
 ```
