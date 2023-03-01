@@ -97,6 +97,7 @@ backpack %>%
 ```{r}
 back_pain_prop <- backpack %>% 
   summarise(back_p_prop = sum(back_problems) / n())
+back_pain_prop
 
 back_pain <- backpack %>% 
   mutate(back_problems = case_when(
@@ -105,10 +106,11 @@ back_pain <- backpack %>%
 
 back_pain %>% 
   ggplot() +
-  aes(x = back_problems, fill = back_problems) +
+  aes(x = back_problems) +
   geom_bar() +
   labs(x = "Back Problems",
-       y = "Count")
+       y = "Count",
+       fill = NULL)
 ```
 
 - This shows that around 1/3 of students reported back pain
@@ -125,7 +127,10 @@ back_pain %>%
   ggplot() +
   aes(x = back_problems, fill = sex) +
   geom_bar(position = "fill") +
-  labs(x = "Back Problems")
+  labs(x = "Back Problems",
+       y = "Count",
+       title = "Proportion of Students with Back Problems",
+       fill = NULL)
 
 ```
 - This shows that a higher proportion of females have reported back problems.
