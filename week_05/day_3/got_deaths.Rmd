@@ -1,0 +1,97 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(shiny)
+library(tidyverse)
+library(bslib)
+
+got_data <- CodeClanData::all_deaths
+```
+
+```{r}
+deaths_in_each_book <- got_data %>% 
+  group_by(allegiances, book_of_death, gender) %>% 
+  summarise(no_of_deaths = n(),
+            female_deaths = (n() - sum(gender)),
+            male_deaths = sum(gender)) %>% 
+  drop_na() %>% 
+  pivot_longer(cols = no_of_deaths:male_deaths,
+               names_to = "gender_or_all",
+               values_to = "deaths") %>%
+  group_by(gender_or_all) %>% 
+  distinct(gender_or_all) %>% 
+  pull()
+  # ggplot() +
+  # aes(x = allegiances, y = no_of_deaths) +
+  # geom_col() +
+  # coord_flip()
+deaths_in_each_book
+```
+```{r}
+gender_or_all <- deaths_in_each_book
+  group_by(gender_or_all) %>% 
+  distinct(gender_or_all) %>% 
+    pull()
+
+```
+
+```{r}
+# deaths_in_each_book <- got_data
+#   filter(book_of_death == 4) %>% 
+#   ggplot() +
+#   aes(x = allegiances, y = no_of_deaths) +
+#   geom_col() +
+#   coord_flip()
+```
+
+```{r}
+got_books  <- got_data %>%
+  distinct(book_of_death) %>%
+  drop_na() %>% 
+  arrange(book_of_death) %>% 
+  pull()
+```
+
+```{r}
+got_pivot <- got_data %>% 
+  group_by(allegiances, book_of_death) %>% 
+  summarise(total = n(), 
+            male = sum(gender),
+            female = total - male) %>% 
+  drop_na() %>% 
+  pivot_longer(cols = ("total":"female"),
+               names_to = "gender_or_all" ,
+               values_to = "no_of_deaths") %>% 
+      filter(book_of_death == 4) %>%
+      filter(gender_or_all == "male") %>% 
+      ggplot() +
+      aes(x = reorder(allegiances, -no_of_deaths),
+          y = no_of_deaths)+
+      geom_col() +
+      coord_flip() +
+      labs(x = "Allegiance",
+           y = "Number of Deaths") +
+      theme_minimal()
+  
+
+
+
+
+# filter(book_of_death == 5) %>%
+# filter(gender_or_all == "total") %>% 
+  # ggplot() +
+  # aes(x = allegiances, y = no_of_deaths) +
+  # geom_col() +
+  # coord_flip()
+got_pivot
+```
+
+```{r}
+got_gender <- got_pivot %>% 
+  distinct(gender_or_all) %>% 
+  select(-allegiances)
+```
+

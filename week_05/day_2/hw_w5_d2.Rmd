@@ -37,7 +37,10 @@ backpack %>%
 backpack %>% 
   ggplot() +
   aes(x = backpack_weight, fill = sex) +
-  geom_histogram(position = "dodge", binwidth = 1) +
+  geom_histogram(position = "dodge",
+                 binwidth = 3,
+                 colour = "black") +
+  facet_wrap(~ sex) +
   labs(x = "Backpack Weight (kg)",
        y = "Count",
        title = "Distribution of Backpack Weight",
@@ -132,6 +135,9 @@ back_pain %>%
        title = "Proportion of Students with Back Problems",
        fill = NULL)
 
+backpack %>% 
+  group_by(sex) %>% 
+  summarise(count = n())
 ```
 - This shows that a higher proportion of females have reported back problems.
 
@@ -142,7 +148,7 @@ back_pain %>%
   ggplot() +
   aes(x = body_weight, y = backpack_weight, colour = sex) +
   geom_point() +
-  facet_wrap( ~ back_problems) +
+  facet_wrap(~ back_problems) +
   labs(x = "Body Weight",
        y = "Backpack Weight",
        fill = NULL,
