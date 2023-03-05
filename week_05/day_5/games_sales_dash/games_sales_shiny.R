@@ -41,7 +41,7 @@ ui <- fluidPage(
   thematic::thematic_shiny(font="auto"),
 
   # Add a title and sidebar
-  titlePanel(tags$h3(tags$b("Best Games by Platform"))),
+  titlePanel(tags$h3(tags$b("Top Rated Games by Platform"))),
   # Put 2 inputs and an action button in the sidebar
   sidebarLayout(
     sidebarPanel(width = 3,
@@ -91,7 +91,7 @@ ui <- fluidPage(
                  fluidRow(
                    column(9, offset = 4,
                           sliderInput(inputId = "top_games",
-                                      label = "Select number of top games", 
+                                      label = "Select number of games", 
                                       min = 0, 
                                       max = 20,
                                       value = 10)
