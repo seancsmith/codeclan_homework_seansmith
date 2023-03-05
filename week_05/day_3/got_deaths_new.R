@@ -3,7 +3,7 @@ library(tidyverse)
 library(bslib)
 
 got_data <- CodeClanData::all_deaths
-# create a vector of team options from olympics medals data
+
 got_books  <- got_data %>%
   distinct(book_of_death) %>%
   drop_na() %>% 
@@ -34,7 +34,8 @@ server <- function(input, output, session) {
     deaths_in_each_book %>% 
       filter(book_of_death == input$book_input) %>% 
       ggplot() +
-      aes(x = reorder(allegiances, no_of_deaths), y = no_of_deaths) +
+      aes(x = reorder(allegiances, no_of_deaths), 
+          y = no_of_deaths) +
       geom_col() +
       coord_flip() +
       labs(x = "Allegiance",

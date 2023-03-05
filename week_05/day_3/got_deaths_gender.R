@@ -3,28 +3,29 @@ library(tidyverse)
 library(bslib)
 
 got_data <- CodeClanData::all_deaths
-# create a vector of team options from olympics medals data
+
 got_books  <- got_data %>%
   distinct(book_of_death) %>%
   drop_na() %>% 
+  arrange(book_of_death) %>% 
   pull()
-
-# deaths_in_each_book <- got_data %>% 
-#   group_by(allegiances, book_of_death) %>% 
-#   summarise(no_of_deaths = n()) %>% 
-#   drop_na()
 
 got_pivot <- got_data %>%
   group_by(allegiances, book_of_death) %>%
   summarise(total = n(),
             male = sum(gender),
             female = total - male) %>%
+  ungroup() %>% 
   drop_na() %>%
   pivot_longer(cols = ("total":"female"),
-               names_to = "gender_or_all" ,
+               names_to = "gender_or_all",
                values_to = "no_of_deaths")
 
-got_gender <- got_data %>% 
+got_gender <- got_pivot %>% 
+  distinct(gender_or_all) %>% 
+  pull()
+
+got_genders <- got_data %>% 
   group_by(allegiances, book_of_death, gender) %>% 
   summarise(no_of_deaths = n(),
             female_deaths = (n() - sum(gender)),
@@ -37,24 +38,27 @@ got_gender <- got_data %>%
   distinct(gender_or_all) %>% 
   pull()
 
+
 ui <- fluidPage(
   titlePanel(tags$h1(tags$b("Game of Thrones - Deaths by book"))),
   theme = bs_theme(bootswatch = "lux"),
-  sidebarPanel(
-    radioButtons(
-      inputId = "gender_input",
-      label = tags$i("Deaths by Gender"),
-      choices = got_gender
+  
+  sidebarLayout(
+    sidebarPanel(
+      radioButtons(
+        inputId = "gender_input",
+        label = tags$i("Deaths by Gender"),
+        choices = got_gender
+      ),
+      selectInput(
+        inputId = "book_input",
+        label = "Which Book?",
+        choices = got_books
+      )
     ),
-    selectInput(
-      inputId = "book_input",
-      label = "Which Book?",
-      choices = got_books
+    mainPanel(
+      plotOutput("got_deaths_plot")
     )
-  ),
-  mainPanel(
-    plotOutput("got_deaths_plot"),
-    #tags$a("Olympics Website", href = "https://www.olympic.org/")
   )
 )
 server <- function(input, output, session) {
@@ -65,11 +69,15 @@ server <- function(input, output, session) {
       ggplot() +
       aes(x = reorder(allegiances, -no_of_deaths),
           y = no_of_deaths) +
-      geom_bar() +
+      geom_bar(stat = "identity") +
       coord_flip() +
       labs(x = "Allegiance",
            y = "Number of Deaths") +
-      theme_minimal()
+      ylim(0, 30) +
+      theme_minimal() +
+      theme(
+        text = element_text(size = 16, face = "bold")
+      )
   })
 }
 shinyApp(ui, server)
