@@ -41,7 +41,7 @@ ui <- fluidPage(
   thematic::thematic_shiny(font="auto"),
   
   # Add a title and sidebar
-  titlePanel(tags$h3(tags$b("Top Rated Games by Console"))),
+  titlePanel(tags$h3(tags$b("Top Rated Games by Genre"))),
   # Put 2 inputs and an action button in the sidebar
   sidebarLayout(
     sidebarPanel(width = 3,
@@ -138,7 +138,7 @@ server <- function(input, output, session) {
       ylim(0, 100) +
       labs(y = "Rating",
            x = "Games",
-           fill = "Genre") +
+           fill = "Console") +
       scale_fill_brewer(palette = "Set3") +
       theme_classic() +
       theme(
