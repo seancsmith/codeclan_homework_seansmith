@@ -32,31 +32,31 @@ games_sales_console <- games_sales_piv %>%
 # Create the UI
 ui <- fluidPage(
   # theme = bs_theme(bootswatch = "darkly"),
-
+  
   # Add a nintendo theme
   theme = bs_theme(
     base_font=font_google("Press Start 2P"),
     bg="#e7e6e1", fg="#9e252a") %>%
     bs_add_rules('@import"https://unpkg.com/nes.css@latest/css/nes.min.css"'),
   thematic::thematic_shiny(font="auto"),
-
+  
   # Add a title and sidebar
   titlePanel(tags$h3(tags$b("Top Rated Games by Console"))),
   # Put 2 inputs and an action button in the sidebar
   sidebarLayout(
     sidebarPanel(width = 3,
                  ## Unused genre select
-                 # pickerInput(
-                 #   inputId = "genre_select", 
-                 #   label = "Genre:", 
-                 #   choices = games_sales_genre,
-                 #   multiple = TRUE,
-                 #   options = pickerOptions(
-                 #     actionsBox = TRUE,
-                 #     size = 10
-                 #     #selectedTextFormat  = "count > 3"
-                 #   )
-                 # ),
+                 pickerInput(
+                   inputId = "genre_select",
+                   label = "Genre:",
+                   choices = games_sales_genre,
+                   multiple = TRUE,
+                   options = pickerOptions(
+                     actionsBox = TRUE,
+                     size = 10
+                     #selectedTextFormat  = "count > 3"
+                   )
+                 ),
                  tags$br(),
                  pickerInput("console_select",
                              label = "Choose Console",
@@ -68,7 +68,7 @@ ui <- fluidPage(
                                                      size = 10)
                  ),
                  tags$br(),
-                 tags$br(),
+                 # tags$br(),
                  radioButtons("review_type",
                               "Review Type:",
                               choices = c("User/Critic Avg Score" = "user_critic_avg",
@@ -77,7 +77,7 @@ ui <- fluidPage(
                  ),
                  tags$br(),
                  tags$br(),
-                 tags$br(),
+                 #tags$br(),
                  actionButton(inputId = "go",
                               "Generate Plots and Table")
     ),
@@ -108,16 +108,16 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session) {
- 
+  
   # create games_filtered which is triggered by the action button 
   games_filtered <- eventReactive(input$go, {
     games_sales_piv %>%
       filter(review_type == input$review_type,
-             # genre == input$genre_select,
+            genre == input$genre_select,
              platform == input$console_select
       )
   })
- 
+  
   # create the plot 
   output$games_plot <- renderPlot({
     games_filtered() %>%  
@@ -125,7 +125,7 @@ server <- function(input, output, session) {
       ggplot() +
       aes(x = reorder(name, review_score),
           y = review_score,
-          fill = genre) +
+          fill = platform) +
       geom_bar(stat = "identity",
                position = "dodge"
       ) +
