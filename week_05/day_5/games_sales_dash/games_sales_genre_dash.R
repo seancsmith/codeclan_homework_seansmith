@@ -53,19 +53,20 @@ ui <- fluidPage(
                    multiple = TRUE,
                    options = pickerOptions(
                      actionsBox = TRUE,
-                     size = 10
-                     #selectedTextFormat  = "count > 3"
+                     size = 10,
+                     selectedTextFormat  = "count > 3"
                    )
                  ),
                  tags$br(),
                  pickerInput("console_select",
                              label = "Choose Console",
                              choices = games_sales_console,
-                             # selected = 1,
+                             selected = 1,
                              multiple = TRUE,
                              options = pickerOptions(virtualScroll = 100,
                                                      actionsBox = TRUE,
-                                                     size = 10)
+                                                     size = 10,
+                                                      selectedTextFormat = "count > 3")
                  ),
                  tags$br(),
                  # tags$br(),
@@ -113,8 +114,8 @@ server <- function(input, output, session) {
   games_filtered <- eventReactive(input$go, {
     games_sales_piv %>%
       filter(review_type == input$review_type,
-            genre == input$genre_select,
-             platform == input$console_select
+            genre %in% input$genre_select,
+             platform %in% input$console_select
       )
   })
   
