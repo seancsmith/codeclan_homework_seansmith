@@ -109,28 +109,27 @@ p_black_spade <- card_deck_black_card %>%
   summarise(p = n()/nrow(card_deck_black_card)) %>% 
   pull()
 
-p_spade <- card_deck_black_card %>% 
+p_black <- card_deck_black_card %>% 
   filter(black == TRUE) %>% 
   summarise(p = n()/nrow(card_deck_black_card)) %>% 
   pull()
 
-p_spade_given_black <- p_black_spade / p_spade
+p_spade_given_black <- p_black_spade / p_black
 ```
 - The probability of picking a spade GIVEN black is 0.5
                       
 
-
 ```{r}
 
-roll_six <- rolldie(6) %>% 
-  nrow()
+# roll_six <- rolldie(6) %>% 
+#   nrow()
 
 # order <- c("6", "5", "4", "3", "2", "1")
 # 
-# roll_6_factorial <- as_tibble(permutations(n = roll_six,
-#                                            r = 6,
-#                                            # v = order,
-#                                            repeats.allowed = FALSE))
+roll_6_factorial <- as_tibble(combinations(n = roll_six,
+                                           r = 6,
+                                           # v = order,
+                                           repeats.allowed = FALSE))
 
 
 ```
