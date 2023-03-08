@@ -49,7 +49,8 @@ phone_data %>%
   ggplot(aes(x = rating)) +
   geom_histogram(aes(y = after_stat(density)),
                  col = "white",
-                 binwidth = 0.1) +
+                 binwidth = 0.1
+                 ) +
     stat_function(
     fun = dnorm,
     args = list(
@@ -83,7 +84,6 @@ nd_1sd <- 100 * (pnorm(q = 1) - pnorm(q = -1))
 
 # samsung prop within 1sd
 samsung_prop_1sd <- 100 * (samsung_ratings$prop_within_1sd / total_ratings)
-
 
 ```
 
