@@ -85,11 +85,16 @@ Calculate a point estimate and 95% CI for the proportion of houses in the data b
 pre_1920 <- ames_data %>% 
   mutate(built_pre_1920 = year_built < 1920)
 
+# To use a numeric value instead of a logical
+
+# ames_before_1920 <- ames_data %>%
+#   mutate(before_1920 = as.numeric(year_built < 1920)) %>% 
+#   select(before_1920)
 
 bootstrap_resample_pre1920 <- pre_1920 %>% 
   specify(response = built_pre_1920, 
           success = "TRUE") %>% 
-  generate(reps = 5000, type = "bootstrap") %>% 
+  generate(reps = 50000, type = "bootstrap") %>% 
   calculate(stat = "prop")
 bootstrap_resample_pre1920
 
@@ -114,7 +119,6 @@ bootstrap_resample_pre1920_200r <- pre_1920 %>%
   calculate(stat = "prop")
 bootstrap_resample_pre1920_200r
 
-
 infer_ci_95_pre_1920_200r <- bootstrap_resample_pre1920_200r %>% 
   get_confidence_interval(level = 0.95,
                           type = "percentile")
@@ -124,7 +128,7 @@ bootstrap_resample_pre1920_200r %>%
   shade_ci(endpoints = infer_ci_95_pre_1920_200r)
 
 mean_bootstrap_pre_1920_200r <- bootstrap_resample_pre1920_200r %>% 
-  summarise(mean = mean(stat))
+  summarise(point_est = mean(stat))
 ```
 
 ```{r}

@@ -1,0 +1,316 @@
+---
+title: "hw w6 d5"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(infer)
+library(ggplot2)
+library(skimr)
+```
+
+```{r}
+m_sleep <- msleep
+
+glimpse(m_sleep)
+
+skim(m_sleep)
+```
+
+```{r}
+m_sleep %>% 
+  ggplot(aes(x = sleep_total)) +
+  geom_histogram(colour = "white",
+                  binwidth = 2)
+```
+
+
+
+1.1
+Question 2
+
+- Significance level = 0.05
+H0: (Jabberocky mean_sleep - avg(sleep_total)) = 0
+Ha: (Jabberocky mean_sleep - avg(sleep_total)) != 0
+
+```{r}
+obs_stat_m <- m_sleep %>% 
+  summarise(mean_sleep = mean(sleep_total)) %>% 
+  pull()
+```
+
+
+```{r}
+null_distribution_jab <- m_sleep %>% 
+  specify(response = sleep_total) %>% 
+  hypothesise(null = "point", mu = 7) %>% 
+  generate(reps = 5000, type = "bootstrap") %>% 
+  calculate(stat = "mean")
+```
+
+```{r}
+null_distribution_jab %>% 
+  visualise(bins =30) +
+  shade_pvalue(obs_stat = obs_stat_m,
+               direction = "both")
+```
+```{r}
+p_value_jab <- null_distribution_jab %>% 
+  get_pvalue(obs_stat = obs_stat_m,
+             direction = "both")
+```
+- With a p-value of 0 we must reject the null hypothsis that the average mammal sleeps around the same as the jabberwockies 7 hours. We can see this is quite different as the mean_sleep (obs_stat_m) is 10.4.
+
+
+3. Perform an appropriate statistical test to determine whether omnivores sleep for significantly longer than herbivores, on average.
+
+- Significance Level: 0.05
+H0: (omnivores mean_sleep) - (herbivores mean_sleep) = 0
+Ha: (omnivores mean_sleep) - (herbivores mean_sleep) > 0
+
+```{r}
+omni_and_herbi <- m_sleep %>% 
+  filter(vore == "omni" |
+         vore == "herbi") %>% 
+  select(vore, sleep_total) %>% 
+  arrange()
+
+omni_and_herbi %>% 
+  ggplot(aes(x = sleep_total, y = vore))+
+  geom_boxplot()
+```
+
+
+```{r}
+null_dist_vore <- omni_and_herbi %>% 
+  specify(sleep_total ~ vore) %>% 
+  hypothesise(null = "independence") %>% 
+  generate(reps = 10000, type = "permute") %>% 
+  calculate(stat = "diff in means",
+            order = c("omni", "herbi"))
+```
+
+```{r}
+obs_stat_vore <- omni_and_herbi %>% 
+  specify(sleep_total ~ vore) %>% 
+  calculate(stat = "diff in means",
+            order = c("omni", "herbi"))
+
+null_dist_vore %>% 
+  visualise(bins = 20) +
+    shade_pvalue(obs_stat = obs_stat_vore,
+               direction = "right")
+```
+
+```{r}
+null_dist_vore %>% 
+  get_pvalue(obs_stat = obs_stat_vore,
+             direction = "right")
+```
+
+- with a p-value of 0.12 we fail to reject the null hypothesis. Based on our sample we do not have enough evidence that the mean_sleep for an omnivore is statistically significantly greater than that of a herbivore.
+
+
+Question 4.
+
+Significance Level: 0.05
+
+H0: proportion of domesticated animals is 5%
+Ha: proportion of domesticated animals is > 5%
+
+```{r}
+m_sleep_domestic <- m_sleep %>% 
+  mutate(is_domesticated = if_else(conservation == "domesticated", TRUE, FALSE))
+
+obs_stat_dom <- m_sleep_domestic %>% 
+  drop_na(is_domesticated) %>% 
+  summarise(prop = sum(is_domesticated / n())) %>% 
+  pull()
+```
+
+```{r}
+null_dist_domestic <- m_sleep_domestic %>% 
+  drop_na(is_domesticated) %>% 
+  specify(response = is_domesticated,
+          success = "TRUE") %>% 
+  hypothesise(null = "point", p = 0.05) %>% 
+  generate(reps = 10000,
+           type = "draw") %>% 
+  calculate(stat = "prop")
+```
+
+```{r}
+null_dist_domestic %>% 
+  visualise(bins = 10) +
+  shade_pvalue(obs_stat = obs_stat_dom,
+               direction = "right")
+```
+```{r}
+null_dist_domestic %>% 
+  get_pvalue(obs_stat = obs_stat_dom,
+               direction = "right")
+```
+
+- As the p-value < 1 then we can reject our null hypothesis in favour of the alternative, that the proportion of domesticated animals is in fact > 5%.
+
+
+1.2
+Question 1
+
+Significance Level: 0.05
+H0: the proportion of the popn who know about the coffee shop is 40%
+H0: people who know about coffee shop / population = 0.4
+
+Ha: the proportion of the popn who know about the coffee shop is greater than 40%
+Ha: people who know about coffee shop / population > 0.4
+
+Using the number of people who know about the coffee shop as a proportion I would use a right sided, one-sample proportion test to find out if the sample proportion is significantly statistically greater than the null value.
+
+
+```{r}
+
+knows_about_cs <- rbinom(200, 1, 0.55)
+
+id <- c(1:200)
+
+popn_sample <- data.frame(id, knows_about_cs)
+
+popn_sample_data <- popn_sample %>% 
+  mutate(knows_about_cs = case_when(
+    knows_about_cs == 1 ~ TRUE,
+    TRUE ~ FALSE)
+    )
+
+obs_stat_coff <- pop_cof %>% 
+  summarise(prop_who_know = sum(knows_about_cs) / nrow(pop_cof))
+
+```
+
+```{r}
+null_dist_coffee <- pop_cof %>% 
+  specify(response = knows_about_cs,
+          success = "TRUE") %>% 
+  hypothesise(null = "point", p = 0.4) %>% 
+  generate(reps = 5000,
+           type = "draw") %>% 
+  calculate(stat = "prop")
+```
+
+```{r}
+null_dist_coffee %>% 
+  visualise(bins = 30) +
+  shade_pvalue(obs_stat = obs_stat_coff,
+               direction = "right")
+```
+
+```{r}
+(p_value <- null_dist_coffee %>% 
+  get_pvalue(obs_stat = obs_stat_coff,
+             direction = "right"))
+```
+
+- In this simulation I get a p-value of 0.0686 which is greater than my stated significance level of 0.05. This means that I lack the evidence to reject the null hypothesis. So I can say the around 40% of the population do know about the coffee shop.
+
+1.2 
+Question 2
+
+Significance Level: 0.05
+H0: The CTR is the same for the banner at the top and banner at the side.
+H0 (CTR banner at top - CTR banner on the side) = 0
+
+Ha: The CTR is significantly different from when the banner is at the top compared to the banner at the side
+Ha: (CTR banner at top - CTR banner on the side) <> 0
+
+The test I would use for this is an independent two-sample proportion test using permute. Where I would calculate the difference in proportions to discover if they were statistically significantly different.
+
+1.2
+Question 3
+
+Significance Level: 0.01
+H0: The average width of the parts is equal to 145mm
+H0: (mean_width of part - 145) = 0
+
+Ha: The aveage width of the part is not equal to 145
+Ha: (mean_width of part - 145) <> 0
+
+The test I would use for this is a one-sample mean test using the bootstrap method. This would help me discover if the mean width of the part was statistically significantly different to 145mm.
+
+1.3
+Question 1.
+
+Significance level: 0.05 
+P-value: 0.07
+
+As the P-value is 0.07 this means that we fail to reject the null hypothesis that the proportion of people in the population who know about the coffee shop is equal to 40%. This means the sample proportion is not statistically significantly greater than 40%.
+
+Question 2.
+
+Significance level: 0.01
+P-value: 0.006
+
+With a P-value of less than 0.01 this means that we must reject the null hypothesis in favour of the alternative. We found enough evidence to suggest that the difference between the CTR with the banner at the top and the CTR with the banner at the side is statistically significantly different to 0.
+
+Question 3.
+
+Significance level: 0.05
+P-value: 0.55
+
+As the p-value is so large, at 0.55, we lack sufficient evidence to reject the hypothesis that the mean width of the parts is equal to 145mm. We can conclude that the mean width of parts is not statistically significantly different to 145mm.
+
+
+Extension:
+
+2.5
+Question 1.
+
+```{r}
+transactions <- read_csv("data/online_retail_subset.csv") %>% 
+  clean_names()
+```
+
+sup(A) = P(A) = number of transactions involving A / total number of transactions
+
+
+```{r}
+distinct_transactions <- transactions %>% 
+  distinct(invoice_no)
+
+transactions %>% 
+  filter(stock_code == 22469) %>% 
+  summarise(sup_a = n() / nrow(distinct_transactions))
+```
+
+Question 2
+
+sup(A → B) = P(A and B being purchased together) = 
+(number of transactions involving A and B) / total number of transactions
+
+```{r}
+transactions_filter <- transactions %>% 
+filter(stock_code == 22469 | stock_code == 21110) %>% 
+group_by(invoice_no) %>% 
+  summarise(n())
+   # count(invoice_no) %>% 
+  # filter(n == 2) %>% 
+  # select(invoice_no) %>% 
+  # pull()
+
+transactions_wide <- transactions %>% 
+  pivot_wider(names_from = description,
+              values_from = description) %>% 
+  clean_names()
+
+transactions_wide %>% 
+ filter(!is.na(white_hanging_heart_t_light_holder))
+# for (x in transactions_filter$invoice_no){
+#     for (y in transactions_filter$stock_code){
+#     if (y == 22469){
+#       print(y)
+#     }
+#        
+#     }
+# }
+```
+
